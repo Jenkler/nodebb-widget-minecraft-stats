@@ -1,0 +1,19 @@
+{
+	"description": "A widget that shows stats from Mincraft data files",
+	"hooks": [
+		{ "hook": "filter:widget.render:minecraft_stats", "method": "filter_widget_render_minecraft_stats" },
+		{ "hook": "filter:widgets.getWidgets", "method": "filter_widgets_get_widgets" },
+		{ "hook": "static:app.load", "method": "static_app_load" }
+	],
+	"id": "nodebb-widget-minecraft-stats",
+	"library": "./library.js",
+	"name": "NodeBB Minecraft stats",
+	"nbbpm": {
+		"compatibility": "^1.0.0"
+	},
+	"staticDirs": {
+        "static": "./static"
+    },
+	"templates": "./templates",
+	"url": "https://github.com/Jenkler/nodebb-widget-minecraft-stats"
+}

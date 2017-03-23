@@ -1,0 +1,27 @@
+{
+  "author": {
+    "email": "info@jenkler.com",
+    "name": "Jenkler"
+  },
+  "description": "A widget that shows stats from Mincraft data files",
+  "homepage": "https://github.com/Jenkler/nodebb-widget-minecraft-stats",
+  "keywords": [
+    "nodebb",
+    "minecraft",
+    "widget"
+  ],
+  "license": "BSD-2-Clause",
+  "main": "library.js",
+  "name": "nodebb-widget-minecraft-stats",
+  "nbbpm": {
+    "compatibility": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jenkler/nodebb-widget-minecraft-stats.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.0"
+}
