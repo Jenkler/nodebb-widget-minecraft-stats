@@ -6,7 +6,8 @@ exports.filter_widget_render_minecraft_stats = function(widget, callback)
 {
 	nodebb.app.render('widgets/minecraft_stats', { html: '<div id="tablediv"></div>' }, function(err, html)
 	{
-		callback(null, html);
+		widget.html = html;
+		callback(err, widget);
 	});
 };
 

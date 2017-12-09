@@ -9,7 +9,7 @@
 	"library": "./library.js",
 	"name": "NodeBB Minecraft stats",
 	"nbbpm": {
-		"compatibility": "^1.0.0"
+		"compatibility": "^1.7.0"
 	},
 	"staticDirs": {
         "static": "./static"
