@@ -151,4 +151,5 @@ exports.staticAppLoad = function(data, callback) {
   console.log('Loading Jenkler Minecraft stats widget ' + require('./package.json').version);
   minecraft['usercache'] = getJsonData('../../public/minecraft/usercache');
   nodebb.app = data.app;
+  callback();
 };
