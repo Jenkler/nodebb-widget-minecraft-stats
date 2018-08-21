@@ -24,6 +24,7 @@ function cmToDistance(cm) {
   }
   return out;
 }
+
 function checkCron(name, seconds) {
   let current = Math.floor(new Date() / 1000);
   if(!cron.hasOwnProperty(name)) {
@@ -35,6 +36,7 @@ function checkCron(name, seconds) {
     return true;
   } else return false;
 }
+
 function getJsonData(path) {
   path = __dirname + '/' + path + '.json';
   if(fs.existsSync(path)) {
@@ -49,6 +51,7 @@ function getJsonData(path) {
     return {};
   }
 }
+
 function keyExists(data) {
   let args = Array.prototype.slice.call(arguments, 1);
   for(var i = 0; i < args.length; i++) {
@@ -59,6 +62,7 @@ function keyExists(data) {
   }
   return true;
 }
+
 function sort(data) {
   const out = {};
   Object.keys(data).sort().forEach(function(key) {
@@ -66,6 +70,7 @@ function sort(data) {
   });
   return out;
 }
+
 function tickToTime(tick) {
   let seconds = tick / 20;
   let out = '';
@@ -116,27 +121,28 @@ exports.filterWidgetRenderMinecraftstats = function(data, callback) {
   minecraft['sort'] = sort(minecraft['sort']);
   minecraft['users'] = sort(minecraft['users']);
   for(let key in minecraft['users']) {
-    thead += '<th>' + key + '</th>';
+    thead += '<div class="td">' + key + '</div>';
   }
   let typeTick = ['play one minute', 'sneak time', 'time since death', 'time since rest'];
   let typeDistance = ['crouch one cm', 'fall one cm', 'fly one cm', 'sprint one cm', 'walk on water one cm', 'walk under water one cm', 'walk one cm'];
   for(let key in minecraft['sort']) {
    	tbody += 
-    '<tr>' +
-    '  <td class="name">' + key[0].toUpperCase() + key.substring(1) + '</td>';
+    '<div class="tr">' +
+    '  <div class="name td">' + key[0].toUpperCase() + key.substring(1) + '</div>';
     for(let key2 in minecraft['users']) {
       let item = keyExists(minecraft, 'users', key2, key) ? minecraft['users'][key2][key] : 0;
       if(typeTick.includes(key)) item = tickToTime(item);
       else if(typeDistance.includes(key)) item = cmToDistance(item);
-      tbody += '<td>' + item  + '</td>';
+      tbody += '<div class="td">' + item  + '</div>';
     }
-    tbody += '</tr>';
+    tbody += '</div>';
   }
   nodebb.app.render('widgets/minecraftstats', { tbody: tbody, thead: thead }, function(err, html) {
     data.html = html;
     callback(err, data);
   });
 };
+
 exports.filterWidgetsGetWidgets = function(data, callback) {
   data = data.concat([
   {
@@ -147,6 +153,7 @@ exports.filterWidgetsGetWidgets = function(data, callback) {
   }]);
   callback(null, data);
 };
+
 exports.staticAppLoad = function(data, callback) {
   console.log('Loading Jenkler Minecraft stats widget ' + require('./package.json').version);
   minecraft['usercache'] = getJsonData('../../public/minecraft/usercache');

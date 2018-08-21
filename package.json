@@ -13,7 +13,7 @@
   "main": "plugin.js",
   "name": "nodebb-widget-minecraft-stats",
   "nbbpm": {
-    "compatibility": "^1.10.0"
+    "compatibility": "^1.10.1"
   },
   "repository": {
     "type": "git",
@@ -22,5 +22,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.10.0"
+  "version": "1.10.1"
 }
