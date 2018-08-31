@@ -11,16 +11,16 @@ function cmToDistance(cm) {
   if(cm >= 100000) {
     let km = Math.floor(cm / 100000);
     cm = cm - (km * 100000);
-    out = out + km + ' km ';
+    out = out + km + 'km ';
   }
   if(cm >= 100) {
     let m = Math.floor(cm / 100);
     cm = cm - (m * 100);
-    out = out + m + ' m ';
+    out = out + m + 'm ';
   }
   if(cm >= 1) {
     cm = Math.floor(cm);
-    out = out + cm + ' cm ';
+    out = out + cm + 'cm ';
   }
   return out;
 }
@@ -63,6 +63,10 @@ function keyExists(data) {
   return true;
 }
 
+function numberSpace(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
 function sort(data) {
   const out = {};
   Object.keys(data).sort().forEach(function(key) {
@@ -77,21 +81,21 @@ function tickToTime(tick) {
   if(seconds >= 86400) {
     let days = Math.floor(seconds / 86400);
     seconds = seconds - (days * 86400);
-    out = out + days + ' d ';
+    out = out + days + 'd ';
   }
   if(seconds >= 3600) {
     let hours = Math.floor(seconds / 3600);
     seconds = seconds - (hours * 3600);
-    out = out + hours + ' h ';
+    out = out + hours + 'h ';
   }
   if(seconds >= 60) {
     let minutes = Math.floor(seconds / 60);
     seconds = seconds - (minutes * 60);
-    out = out + minutes + ' m ';
+    out = out + minutes + 'm ';
   }
   if(seconds >= 1) {
     seconds = Math.floor(seconds);
-    out = out + seconds + ' s ';
+    out = out + seconds + 's ';
   }
   return out;
 }
@@ -124,15 +128,20 @@ exports.filterWidgetRenderMinecraftstats = function(data, callback) {
     thead += '<div class="td">' + key + '</div>';
   }
   let typeTick = ['play one minute', 'sneak time', 'time since death', 'time since rest'];
-  let typeDistance = ['crouch one cm', 'fall one cm', 'fly one cm', 'sprint one cm', 'walk on water one cm', 'walk under water one cm', 'walk one cm'];
+  let typeDistance = ['boat one cm', 'climb one cm', 'crouch one cm', 'fall one cm', 'fly one cm', 'horse one cm', 'minecart one cm',
+  'pig one cm', 'sprint one cm', 'swim one cm', 'walk on water one cm', 'walk under water one cm', 'walk one cm'];
+
   for(let key in minecraft['sort']) {
    	tbody += 
     '<div class="tr">' +
     '  <div class="name td">' + key[0].toUpperCase() + key.substring(1) + '</div>';
     for(let key2 in minecraft['users']) {
       let item = keyExists(minecraft, 'users', key2, key) ? minecraft['users'][key2][key] : 0;
-      if(typeTick.includes(key)) item = tickToTime(item);
-      else if(typeDistance.includes(key)) item = cmToDistance(item);
+      if(!item == 0) {
+        if(typeTick.includes(key)) item = tickToTime(item);
+        else if(typeDistance.includes(key)) item = cmToDistance(item);
+        else item = numberSpace(item);
+      }
       tbody += '<div class="td">' + item  + '</div>';
     }
     tbody += '</div>';
