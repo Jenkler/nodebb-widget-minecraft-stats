@@ -9,7 +9,7 @@
   "library": "plugin.js",
   "name": "NodeBB Minecraft stats widge widget",
   "nbbpm": {
-    "compatibility": "^1.12.0"
+    "compatibility": "^1.12.2"
   },
   "staticDirs": {
     "static": "static"
