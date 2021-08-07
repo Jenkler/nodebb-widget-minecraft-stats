@@ -16,7 +16,7 @@
   display: table-row-group;
 }
 .td {
-  border:solid 1px #eee; 
+  border:solid 1px #eee;
   display: table-cell;
   padding: 5px; 
 }
@@ -50,8 +50,8 @@
 <script src="/assets/plugins/nodebb-widget-minecraft-stats/static/list.min.js"></script>
 <script>
 var userList = new List('stats', {
-	valueNames: ['name'],
-	page: 25,
-	pagination: true
+  page: 25,
+  pagination: true,
+  valueNames: ['name']
 });
 </script>

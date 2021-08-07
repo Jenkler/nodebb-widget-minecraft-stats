@@ -1,44 +1,43 @@
 'use strict';
 
+const fs = require('fs');
+const meta = require.main.require('./src/meta');
 let cron = {};
-let fs = require('fs');
 let minecraft = {};
 let nodebb = {};
 let userdata = {};
 
-function cmToDistance(cm) {
+const cmToDistance = async (data) => {
   let out = '';
-  if(cm >= 100000) {
-    let km = Math.floor(cm / 100000);
-    cm = cm - (km * 100000);
+  if(data >= 100000) {
+    let km = Math.floor(data / 100000);
+    data = data - (km * 100000);
     out = out + km + 'km ';
   }
-  if(cm >= 100) {
-    let m = Math.floor(cm / 100);
-    cm = cm - (m * 100);
+  if(data >= 100) {
+    let m = Math.floor(data / 100);
+    data = data - (m * 100);
     out = out + m + 'm ';
   }
-  if(cm >= 1) {
-    cm = Math.floor(cm);
-    out = out + cm + 'cm ';
+  if(data >= 1) {
+    data = Math.floor(data);
+    out = out + data + 'cm ';
   }
   return out;
 }
-
-function checkCron(name, seconds) {
+const checkCron = async (name, seconds) => {
   let current = Math.floor(new Date() / 1000);
   if(!cron.hasOwnProperty(name)) {
     cron[name] = current;
-	return true;
+    return true;
   }
   if((current - cron[name]) > seconds) {
     cron[name] = current;
     return true;
   } else return false;
 }
-
-function getJsonData(path) {
-  path = __dirname + '/' + path + '.json';
+const getJsonData = async (data) => {
+  let path = __dirname + '/' + data + '.json';
   if(fs.existsSync(path)) {
     try {
       return JSON.parse(fs.readFileSync(path, 'utf8'));
@@ -51,32 +50,17 @@ function getJsonData(path) {
     return {};
   }
 }
-
-function keyExists(data) {
-  let args = Array.prototype.slice.call(arguments, 1);
-  for(var i = 0; i < args.length; i++) {
-    if(!data || !data.hasOwnProperty(args[i])) {
-      return false;
-    }
-    data = data[args[i]];
-  }
-  return true;
+const numberSpace = async (data) => {
+  return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
-
-function numberSpace(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const renderAdmin = async (req, res) => {
+  res.render('admin/minecraft-stats', {});
 }
-
-function sort(data) {
-  const out = {};
-  Object.keys(data).sort().forEach(function(key) {
-    out[key] = data[key];
-  });
-  return out;
+const sort = async (data) => {
+  return Object.keys(data).sort().reduce((r, k) => (r[k] = data[k], r), {});
 }
-
-function tickToTime(tick) {
-  let seconds = tick / 20;
+const tickToTime = async (data) => {
+  let seconds = data / 20;
   let out = '';
   if(seconds >= 86400) {
     let days = Math.floor(seconds / 86400);
@@ -100,21 +84,31 @@ function tickToTime(tick) {
   return out;
 }
 
-exports.filterWidgetRenderMinecraftstats = function(data, callback) {
+exports.filterAdminHeaderBuild = async (data) => {
+  data.plugins.push({
+    icon: 'fa-link',
+    name: 'Minecraft Stats',
+    route: '/minecraft-stats'
+  });
+  return data;
+};
+exports.filterWidgetRenderMinecraftStats = async (data) => {
   minecraft['sort'] = {};
   minecraft['users'] = {};
   let tbody = '';
   let thead = '';
-
+  let settings = await meta.settings.get('minecraft-stats');
+  let limit = Number(settings?.limit ?? 0) ? Number(settings?.limit ?? 0) * 20 * 60 * 60 : 0;
+  let users = (settings?.users ?? '').split(',').map((x) => { return x.trim().split(' ')[0]; });
   for(let key in minecraft['usercache']) {
     let uuid = minecraft['usercache'][key]['uuid'];
-    if(checkCron(uuid, 3600)) userdata[uuid] = getJsonData('../../public/minecraft/stats/' + uuid);
-    if(!keyExists(userdata, uuid, 'stats', 'minecraft:custom', 'minecraft:play_one_minute')) continue;
-    if(userdata[uuid]['stats']['minecraft:custom']['minecraft:play_one_minute'] < 72000) continue;
+    if(users[0] != '') if(users.indexOf(minecraft['usercache'][key]['name']) === -1) continue;
+    if(await checkCron(uuid, 3600)) userdata[uuid] = await getJsonData('../../public/minecraft/stats/' + uuid);
+    if((userdata?.[uuid]?.['stats']?.['minecraft:custom']?.['minecraft:play_one_minute'] ?? 0) < limit) continue;
     for(let key2 in userdata[uuid]['stats']) {
       let group = key2.split(':').pop().replace(/_/g,' ');
       for(let key3 in userdata[uuid]['stats'][key2]) {
-        if(!keyExists(minecraft, 'users', minecraft['usercache'][key]['name'])) minecraft['users'][minecraft['usercache'][key]['name']] = {};
+        if(!minecraft?.['users']?.[minecraft['usercache'][key]['name']] ?? '') minecraft['users'][minecraft['usercache'][key]['name']] = {};
         let name = group + ' ' + key3.split(':').pop().replace(/_/g,' ');
         name = name.replace('custom ', '');
         minecraft['users'][minecraft['usercache'][key]['name']][name] = userdata[uuid]['stats'][key2][key3];
@@ -122,8 +116,8 @@ exports.filterWidgetRenderMinecraftstats = function(data, callback) {
       }
     }
   }
-  minecraft['sort'] = sort(minecraft['sort']);
-  minecraft['users'] = sort(minecraft['users']);
+  minecraft['sort'] = await sort(minecraft['sort']);
+  minecraft['users'] = await sort(minecraft['users']);
   for(let key in minecraft['users']) {
     thead += '<div class="td">' + key + '</div>';
   }
@@ -132,40 +126,36 @@ exports.filterWidgetRenderMinecraftstats = function(data, callback) {
   'pig one cm', 'sprint one cm', 'swim one cm', 'walk on water one cm', 'walk under water one cm', 'walk one cm'];
 
   for(let key in minecraft['sort']) {
-   	tbody += 
+    tbody += 
     '<div class="tr">' +
     '  <div class="name td">' + key[0].toUpperCase() + key.substring(1) + '</div>';
     for(let key2 in minecraft['users']) {
-      let item = keyExists(minecraft, 'users', key2, key) ? minecraft['users'][key2][key] : 0;
+      let item = minecraft?.['users']?.[key2]?.[key] ?? 0;
       if(!item == 0) {
-        if(typeTick.includes(key)) item = tickToTime(item);
-        else if(typeDistance.includes(key)) item = cmToDistance(item);
-        else item = numberSpace(item);
+        if(typeTick.includes(key)) item = await tickToTime(item);
+        else if(typeDistance.includes(key)) item = await cmToDistance(item);
+        else item = await numberSpace(item);
       }
       tbody += '<div class="td">' + item  + '</div>';
     }
     tbody += '</div>';
   }
-  nodebb.app.render('widgets/minecraftstats', { tbody: tbody, thead: thead }, function(err, html) {
-    data.html = html;
-    callback(err, data);
-  });
+  data.html = await nodebb.app.renderAsync('widgets/minecraft-stats', { tbody: tbody, thead: thead });
+  return data;
 };
-
-exports.filterWidgetsGetWidgets = function(data, callback) {
-  data = data.concat([
-  {
-    widget: 'minecraftstats',
-    name: 'Minecraft stats',
+exports.filterWidgetsGetWidgets = async (data) => {
+  data.push({
     content: '',
-    description: 'A widget that shows stats from Mincraft data files'
-  }]);
-  callback(null, data);
+    description: 'A widget that shows stats from Mincraft data files',
+    name: 'Minecraft Stats',
+    widget: 'minecraft-stats'
+  });
+  return data;
 };
-
-exports.staticAppLoad = function(data, callback) {
-  console.log('Loading Jenkler Minecraft stats widget ' + require('./package.json').version);
-  minecraft['usercache'] = getJsonData('../../public/minecraft/usercache');
+exports.staticAppLoad = async (data) => {
+  console.log('Loading Jenkler Minecraft Stats widget ' + require('./package.json').version);
+  data.router.get('/admin/minecraft-stats', data.middleware.admin.buildHeader, renderAdmin);
+  data.router.get('/api/admin/minecraft-stats', renderAdmin);
+  minecraft['usercache'] = await getJsonData('../../public/minecraft/usercache');
   nodebb.app = data.app;
-  callback();
 };

@@ -1,15 +1,17 @@
 {
+  "acpScripts": [ "admin.js" ],
   "description": "A widget that shows stats from Mincraft data files",
   "hooks": [
-    { "hook": "filter:widget.render:minecraftstats", "method": "filterWidgetRenderMinecraftstats" },
+    { "hook": "filter:admin.header.build", "method": "filterAdminHeaderBuild" },
+    { "hook": "filter:widget.render:minecraft-stats", "method": "filterWidgetRenderMinecraftStats" },
     { "hook": "filter:widgets.getWidgets", "method": "filterWidgetsGetWidgets" },
     { "hook": "static:app.load", "method": "staticAppLoad" }
   ],
   "id": "nodebb-widget-minecraft-stats",
   "library": "plugin.js",
-  "name": "NodeBB Minecraft stats widge widget",
+  "name": "NodeBB Minecraft Stats",
   "nbbpm": {
-    "compatibility": "^1.12.2"
+    "compatibility": "^1.17.2"
   },
   "staticDirs": {
     "static": "static"
