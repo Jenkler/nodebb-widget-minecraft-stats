@@ -11,7 +11,7 @@
   "library": "plugin.js",
   "name": "NodeBB Minecraft Stats",
   "nbbpm": {
-    "compatibility": "^1.17.2"
+    "compatibility": "^1.18.0"
   },
   "staticDirs": {
     "static": "static"
